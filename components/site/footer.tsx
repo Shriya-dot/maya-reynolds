@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from 'lucide-react'
+import { Mail, Phone, MapPin, ArrowUp } from 'lucide-react'
 
 const NAV = [
   { label: 'About', href: '#about' },
@@ -63,7 +63,16 @@ export function SiteFooter() {
 
         <div className="mt-14 flex flex-col gap-3 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} Dr. Maya Reynolds, PsyD. All rights reserved.</p>
-          <p>Licensed Clinical Psychologist &middot; State of California</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <p>Licensed Clinical Psychologist &middot; State of California</p>
+            <a
+              href="#top"
+              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-border px-4 font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              <span>Back to top</span>
+              <ArrowUp className="size-4" aria-hidden="true" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

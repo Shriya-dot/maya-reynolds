@@ -59,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable} ${script.variable}`}>
+    <html lang="en" className={`${serif.variable} ${sans.variable} ${script.variable} scroll-smooth`}>
       <body className="antialiased font-sans">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
