@@ -120,7 +120,7 @@ export function SiteHeader() {
           <div
             id="mobile-navigation"
             hidden={!open}
-            className="fixed inset-0 z-[1000] bg-background lg:hidden"
+            className="fixed inset-0 z-[1000] overflow-y-auto bg-background lg:hidden"
           >
             <button
               ref={closeButtonRef}
@@ -131,13 +131,13 @@ export function SiteHeader() {
             >
               <X className="size-6" />
             </button>
-            <nav className="flex flex-col gap-1 px-6 pt-[104px] pb-8" aria-label="Mobile navigation">
+            <nav className="flex flex-col gap-3 px-6 pt-[104px] pb-8" aria-label="Mobile navigation">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="border-b border-border py-4 text-lg font-medium uppercase tracking-[0.12em] text-foreground/90 transition-colors hover:text-primary"
+                  className="flex min-h-14 items-center border-b border-border py-4 text-lg font-medium uppercase tracking-[0.12em] text-foreground/90 transition-colors hover:text-primary"
                 >
                   {link.label}
                 </a>
@@ -145,7 +145,7 @@ export function SiteHeader() {
               <a
                 href="#contact"
                 onClick={() => setOpen(false)}
-                className="mt-6 rounded-full bg-primary px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.14em] text-primary-foreground"
+                className="mt-3 flex min-h-14 items-center justify-center rounded-full bg-primary px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.14em] text-primary-foreground"
               >
                 Contact
               </a>
