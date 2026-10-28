@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
+import { createPortal } from 'react-dom'
 import { Menu, X } from 'lucide-react'
 
 const NAV_LINKS = [
@@ -14,6 +16,15 @@ const NAV_LINKS = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const wasOpen = useRef(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -23,15 +34,43 @@ export function SiteHeader() {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
+    if (!open) return
+
+    const bodyOverflow = document.body.style.overflow
+    const documentOverflow = document.documentElement.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+
     return () => {
-      document.body.style.overflow = ''
+      document.body.style.overflow = bodyOverflow
+      document.documentElement.style.overflow = documentOverflow
     }
   }, [open])
 
+  useEffect(() => {
+    if (!open) {
+      if (wasOpen.current) menuButtonRef.current?.focus()
+      wasOpen.current = false
+      return
+    }
+
+    wasOpen.current = true
+    closeButtonRef.current?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open])
+
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
   return (
     <header
-      className={`sticky top-0 z-50 transition-colors duration-300 ${
+      className={`sticky top-0 z-[999] transition-colors duration-300 ${
         scrolled ? 'bg-background/90 backdrop-blur-md border-b border-border' : 'bg-transparent'
       }`}
     >
@@ -64,39 +103,56 @@ export function SiteHeader() {
         </nav>
 
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="inline-flex items-center justify-center rounded-md p-2 text-foreground lg:hidden"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={open}
+          aria-controls="mobile-navigation"
         >
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
       </div>
 
-      {open && (
-        <div className="fixed inset-0 top-[72px] z-40 overflow-y-auto bg-background lg:hidden">
-          <nav className="flex flex-col gap-3 px-6 py-8" aria-label="Mobile">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="flex min-h-14 items-center border-b border-border py-4 text-lg font-medium uppercase tracking-[0.12em] text-foreground/90 transition-colors hover:text-primary"
-              >
-                {link.label}
-              </a>
-            ))}
-            <a
-              href="#contact"
+      {mounted &&
+        createPortal(
+          <div
+            id="mobile-navigation"
+            hidden={!open}
+            className="fixed inset-0 z-[1000] overflow-y-auto bg-background lg:hidden"
+          >
+            <button
+              ref={closeButtonRef}
+              type="button"
               onClick={() => setOpen(false)}
-              className="mt-3 flex min-h-14 items-center justify-center rounded-full bg-primary px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.14em] text-primary-foreground"
+              className="fixed top-4 right-5 z-[1001] inline-flex items-center justify-center rounded-md p-2 text-foreground sm:right-8 lg:right-12"
+              aria-label="Close menu"
             >
-              Contact
-            </a>
-          </nav>
-        </div>
-      )}
+              <X className="size-6" />
+            </button>
+            <nav className="flex flex-col gap-3 px-6 pt-[104px] pb-8" aria-label="Mobile navigation">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-14 items-center border-b border-border py-4 text-lg font-medium uppercase tracking-[0.12em] text-foreground/90 transition-colors hover:text-primary"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href="#contact"
+                onClick={() => setOpen(false)}
+                className="mt-3 flex min-h-14 items-center justify-center rounded-full bg-primary px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.14em] text-primary-foreground"
+              >
+                Contact
+              </a>
+            </nav>
+          </div>,
+          document.body,
+        )}
     </header>
   )
 }
